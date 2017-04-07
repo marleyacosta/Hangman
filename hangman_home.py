@@ -3,7 +3,7 @@ from tkinter import *
 import tkinter.messagebox
 
 ## letter guess section ##
-def letterguess(guessfield, hiddenword, game, gamelabel1, man, e):
+def letterguess(guessfield, hiddenword, game, gamelabel1, man):
 	global correctcounter
 	global incorrectcounter
 	global wordarray
@@ -90,15 +90,12 @@ def wordguess(guessfield, hiddenword, game, man):
 
 
 ## play the actual game ##
-def startgame(e, top):
+def startgame():
 
 	global word
-	word = e.get().lower()
+	word = "maurely"
 
-	if len(word) < 1:
-		tkinter.messagebox.showinfo("Error", "Please enter a word!")
-		top.withdraw()
-		playnow()
+
 
 	## lots of variables for actual game ##
 	global wordarray
@@ -118,8 +115,6 @@ def startgame(e, top):
 	incorrectcounter = 0
 	## end variables ##
 
-	## more gui below ##
-	top.withdraw()
 
 	game = Toplevel()
 	game.wm_title("Movies Hangman")
@@ -146,7 +141,7 @@ def startgame(e, top):
 	hiddenword.set(wordprint)
 
 	bguessletter = Button(game, text="Guess Letter", width=15, command=lambda:
-		letterguess(guessfield, hiddenword, game, gamelabel1, man, e))
+		letterguess(guessfield, hiddenword, game, gamelabel1, man))
 	bguessletter.pack()
 
 	bguessword = Button(game, text="Guess Word [ONE CHANCE]", width=25, command=lambda:wordguess(guessfield, hiddenword, game, man))
@@ -197,26 +192,6 @@ def showhangman(gamelabel1, remainingguesses):
 		gamelabel1.configure(image = img)
 		gamelabel1.image = img
 
-## enter the word to be guessed ##
-def playnow():
-
-	top = Toplevel()
-	top.wm_title("Game Lobby")
-	top.minsize(200,100)
-	top.geometry("300x80")
-
-	label = Label(top)
-	label.pack()
-
-	e = Entry(top, width=30)
-	e.insert(0, "Enter the word to be guessed")
-	e.pack()
-
-	benter = Button(top, text="Submit", width=7, command= lambda:startgame(e, top))
-	benter.pack()
-
-	top.mainloop()
-
 root = Tk()
 root.wm_title("Hangman in Python, by jl")
 root.minsize(380,380)
@@ -227,7 +202,7 @@ titleLabel = Label(root, image=title)
 titleLabel.image = title
 titleLabel.pack()
 
-bplay = Button(root, text="Play", width=10, command=playnow)
+bplay = Button(root, text="Play", width=10, command=startgame)
 bplay.pack()
 
 bquit = Button(root, text="Quit", width=10, command=quitnow)
