@@ -36,14 +36,14 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 
 	## check to see if letter is good ##
 	while (i < len(movie) and valid):
-		if movie[i] == letter[0]:
+		if movie[i].lower() == letter[0]:
 
 			letterinmovie = True
 			moviearray.pop(2*i)
 			moviearray.insert(2*i, letter[0])
 
 			if guessedletters.count(letter[0]) == 0:
-				correctcounter = correctcounter + movie.count(letter[0])
+				correctcounter = correctcounter + movie.count(letter[0].lower()) + movie.count(letter[0].upper())
 				guessedletters.append(letter[0])
 		i = i + 1
 
