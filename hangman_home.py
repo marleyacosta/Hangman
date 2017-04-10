@@ -87,7 +87,7 @@ def movieguess(guessfield, hiddenmovie, game, man):
 		match = False
 
 	while i < len(movieguess):
-		if movie[i] != movieguess[i]:
+		if movie[i].lower() != movieguess[i].lower():
 			match = False
 		i = i + 1
 
