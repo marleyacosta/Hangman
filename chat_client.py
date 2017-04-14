@@ -37,7 +37,7 @@ def chat_client():
                     sys.stdout.write('[Me] '); sys.stdout.flush()
 
             else :
-                msg = sys.stdin.readline()
+                msg = sys.stdin.readline().encode()
                 s.send(msg)
                 sys.stdout.write('[Me] '); sys.stdout.flush()
 

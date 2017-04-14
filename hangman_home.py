@@ -85,7 +85,7 @@ Guessed Letters:
     if incorrectcounter >= 6:
         lose(game, movie)
 
-<<<<<<< Updated upstream
+
 ## letter guess section ##
 def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 	global correctcounter
@@ -145,8 +145,7 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 	## lose condition ##
 	if incorrectcounter >= 6:
 		lose(game, movie)
-=======
->>>>>>> Stashed changes
+
 
 ## movie guess section ##
 
@@ -166,20 +165,14 @@ def movieguess(
     if len(movieguess) == 0:
         match = False
 
-    while i < len(movieguess):
-        if movie[i] != movieguess[i]:
-            match = False
-        i = i + 1
+        while i < len(movieguess):
+            if movie[i].lower() != movieguess[i].lower():
+                match = False
+                i = i + 1
 
-<<<<<<< Updated upstream
-	while i < len(movieguess):
-		if movie[i].lower() != movieguess[i].lower():
-			match = False
-		i = i + 1
-=======
     if len(movie) != len(movieguess):
         match = False
->>>>>>> Stashed changes
+
 
     if match:
         win(game, movie)
