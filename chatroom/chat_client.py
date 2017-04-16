@@ -1,46 +1,51 @@
 
-import sys, socket, select
+from socket import *
+import select
+import sys
+from chat_utility import Room, Hall, Player
+import chat_utility
 
-def chat_client():
-    if(len(sys.argv) < 3) :
-        print('Usage : python chat_client.py hostname port')
-        sys.exit()
+READ_BUFFER = 1024
 
-    host = sys.argv[1]
-    port = int(sys.argv[2])
+if len(sys.argv) < 2:
+    print("Usage: python3 chat_client.py [hostname]", file = sys.stderr)
+    sys.exit(1)
+else:
+    server_connection = socket(AF_INET, SOCK_STREAM)
+    server_connection.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+    server_connection.connect((sys.argv[1], chat_utility.PORT))
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(2)
+def prompt():
+    print('>', end=' ', flush=True)
 
-    try :
-        s.connect((host, port))
-    except :
-        print('Unable to connect')
-        sys.exit()
+print("Connected to server\n")
+msg_prefix = ''
 
-    print('Connected to remote host. You can start sending messages')
-    sys.stdout.write('[Me] '); sys.stdout.flush()
+socket_list = [sys.stdin, server_connection]
 
-    while 1:
-        socket_list = [sys.stdin, s]
+while True:
+    read_sockets, write_sockets, error_sockets = select.select(socket_list, [], [])
 
-        read_sockets, write_sockets, error_sockets = select.select(socket_list , [], [])
+    for s in read_sockets:
+        if s is server_connection:
+            msg = s.recv(READ_BUFFER)
 
-        for sock in read_sockets:
-            if sock == s:
-                data = sock.recv(4096)
-                if not data :
-                    print('\nDisconnected from chat server')
-                    sys.exit()
-                else :
-                    sys.stdout.write(data)
-                    sys.stdout.write('[Me] '); sys.stdout.flush()
+            if not msg:
+                print("Server down")
+                sys.exit(2)
+            else:
+                if msg == chat_utility.QUIT_STRING.encode():
+                    sys.stdout.write('Bye\n')
+                    sys.exit(2)
+                else:
+                    sys.stdout.write(msg.decode())
 
-            else :
-                msg = sys.stdin.readline().encode()
-                s.send(msg)
-                sys.stdout.write('[Me] '); sys.stdout.flush()
+                    if 'Please enter your name' in msg.decode():
+                        msg_prefix = 'name: '
+                    else:
+                        msg_prefix = ''
 
-if __name__ == "__main__":
-
-    sys.exit(chat_client())
+                    prompt()
+        else:
+            msg = msg_prefix + sys.stdin.readline()
+            server_connection.sendall(msg.encode())
