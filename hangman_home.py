@@ -1,89 +1,6 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 from tkinter import *
 import tkinter.messagebox
 import sqlite3
-
-
-## letter guess section ##
-
-def letterguess(
-    guessfield,
-    hiddenmovie,
-    game,
-    gamelabel1,
-    man,
-    ):
-    global correctcounter
-    global incorrectcounter
-    global moviearray
-    global guessedletters
-    global movie
-
-    i = 0
-    letterinmovie = False
-    valid = True
-    letter = guessfield.get()
-    letter = letter.lower()
-    guessfield.delete(0, END)
-
-    # # account for blank input ##
-
-    if len(letter) == 0:
-        tkinter.messagebox.showinfo('Error',
-                                    'Please enter a word or letter!')
-        valid = False
-
-    # # check to see if letter is good ##
-
-    while i < len(movie) and valid:
-        if movie[i] == letter[0]:
-
-            letterinmovie = True
-            moviearray.pop(2 * i)
-            moviearray.insert(2 * i, letter[0])
-
-            if guessedletters.count(letter[0]) == 0:
-                correctcounter = correctcounter + movie.count(letter[0])
-                guessedletters.append(letter[0])
-        i = i + 1
-
-    # # incorrect guess ##
-
-    if not letterinmovie and valid:
-
-        if guessedletters.count(letter[0]) == 0:
-            guessedletters.append(letter[0])
-            incorrectcounter = incorrectcounter + 1
-
-    # # update label ##
-
-    remainingguesses = 6 - incorrectcounter
-    movieguessedprint = ''.join(guessedletters)
-    movieprint = ''.join(moviearray) + '\n'
-
-    movieprint = movieprint + '''
-Guessed Letters:
-''' \
-        + movieguessedprint + '\n'
-    movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
-        + str(remainingguesses) + '\n'
-    hiddenmovie.set(movieprint)
-
-    # # update image ##
-
-    showhangman(gamelabel1, remainingguesses)
-
-    # # win condition ##
-
-    if correctcounter == len(movie):
-        win(game, movie)
-
-    # # lose condition ##
-
-    if incorrectcounter >= 6:
-        lose(game, movie)
 
 
 ## letter guess section ##
@@ -127,11 +44,10 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 			incorrectcounter = incorrectcounter + 1
 
 	## update label ##
-	remainingguesses = 6 - incorrectcounter
+	remainingguesses = guesseslimit(movie) - incorrectcounter
 	movieguessedprint = ''.join(guessedletters)
 	movieprint = ''.join(moviearray) + "\n"
-
-	movieprint = movieprint + "\nGuessed Letters: \n" + movieguessedprint + "\n"
+	movieprint = movieprint + "\nGuessed Letters OR Numbers OR Symbols: \n" + movieguessedprint + "\n"
 	movieprint = movieprint + "\nIncorrect Guesses Remaining: " + str(remainingguesses) + "\n"
 	hiddenmovie.set(movieprint)
 
@@ -139,11 +55,11 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 	showhangman(gamelabel1, remainingguesses)
 
 	## win condition ##
-	if correctcounter == len(movie):
+	if correctcounter == len(movie) - movie.count(' '):
 		win(game, movie)
 
 	## lose condition ##
-	if incorrectcounter >= 6:
+	if incorrectcounter >= guesseslimit(movie):
 		lose(game, movie)
 
 
@@ -160,18 +76,11 @@ def movieguess(
 
     movieguess = guessfield.get()
     i = 0
-    match = True
+    match = False
 
-    if len(movieguess) == 0:
-        match = False
 
-        while i < len(movieguess):
-            if movie[i].lower() != movieguess[i].lower():
-                match = False
-                i = i + 1
-
-    if len(movie) != len(movieguess):
-        match = False
+    if movie.lower() == movieguess.lower():
+        match = True
 
 
     if match:
@@ -186,6 +95,19 @@ def hint():
         + actor_1_name + ', ' + actor_2_name + ', and ' + actor_3_name \
         + '.'
     tkinter.messagebox.showinfo('Hint', hint)
+
+
+
+def guesseslimit(movie):
+    num_unique_letters = len(list(set(movie)))
+    print("num letters: ", num_unique_letters)
+    if(num_unique_letters <= 10):
+        num_guesses = round(num_unique_letters + (num_unique_letters / 3))
+    else:
+        num_guesses = round(num_unique_letters - (num_unique_letters / 3))
+    print(num_guesses)
+    return num_guesses
+
 
 
 ## play the actual game ##
@@ -229,9 +151,18 @@ def startgame():
     guessedletters = []
 
     i = 0
+    print(movie)
     while i < len(movie):
+
         moviearray.append('_')
         moviearray.append(' ')
+
+        #if(movie[i] == " "):
+            #moviearray.append('  ')
+        #else:
+            #moviearray.append('_')
+            #moviearray.append(' ')
+
         i = i + 1
 
     global correctcounter
@@ -244,7 +175,7 @@ def startgame():
     game = Toplevel()
     game.wm_title('Movies Hangman')
     game.minsize(380, 380)
-    game.geometry('380x480')
+    game.geometry('680x480')
 
     man = PhotoImage(file='hangman_pics/gallows.gif')
     hiddenmovie = StringVar()
@@ -258,10 +189,10 @@ def startgame():
     guessfield = Entry(game)
     guessfield.pack()
 
-    remainingguesses = 6 - incorrectcounter
+    remainingguesses = guesseslimit(movie) - incorrectcounter
     movieprint = ''.join(moviearray)
     movieguessedprint = ''.join(guessedletters)
-    movieprint = movieprint + '\nGuessed Letters: ' + movieguessedprint \
+    movieprint = movieprint + '\nGuessed Letters OR Numbers OR Symbols: ' + movieguessedprint \
         + '\n'
     movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
         + str(remainingguesses) + '\n'
@@ -297,40 +228,46 @@ def quitnow():
 
 
 def win(game, movie):
-    tkinter.messagebox.showinfo('Winnerx2-Chicken-Dinner',
+    tkinter.messagebox.showinfo('WINNER',
                                 'You WIN! The movie was ' + movie + '!')
     game.withdraw()
 
 
 def lose(game, movie):
-    tkinter.messagebox.showinfo('Loser-Shmooser',
+    tkinter.messagebox.showinfo('LOSER',
                                 'You LOSE! The movie was ' + movie + '!'
                                 )
     game.withdraw()
 
 
 def showhangman(gamelabel1, remainingguesses):
-    if remainingguesses == 6:
+
+    limit = guesseslimit(movie) # 11
+    increment = round(limit / 7) # 2
+    print("increment: ", increment)
+
+
+    if remainingguesses == limit:
         img = PhotoImage(file='hangman_pics/gallows.gif')
         gamelabel1.configure(image=img)
         gamelabel1.image = img
-    if remainingguesses == 5:
+    if remainingguesses == (limit - increment):
         img = PhotoImage(file='hangman_pics/head.gif')
         gamelabel1.configure(image=img)
         gamelabel1.image = img
-    if remainingguesses == 4:
+    if remainingguesses == (limit - 2 * increment):
         img = PhotoImage(file='hangman_pics/noarms.gif')
         gamelabel1.configure(image=img)
         gamelabel1.image = img
-    if remainingguesses == 3:
+    if remainingguesses == (limit - 3 * increment):
         img = PhotoImage(file='hangman_pics/rightarm.gif')
         gamelabel1.configure(image=img)
         gamelabel1.image = img
-    if remainingguesses == 2:
+    if remainingguesses == (limit - 4 * increment):
         img = PhotoImage(file='hangman_pics/nolegs.gif')
         gamelabel1.configure(image=img)
         gamelabel1.image = img
-    if remainingguesses == 1:
+    if remainingguesses == (limit - 5 * increment):
         img = PhotoImage(file='hangman_pics/almostdead.gif')
         gamelabel1.configure(image=img)
         gamelabel1.image = img
@@ -338,6 +275,7 @@ def showhangman(gamelabel1, remainingguesses):
         img = PhotoImage(file='hangman_pics/dead.gif')
         gamelabel1.configure(image=img)
         gamelabel1.image = img
+
 
 
 # Connect to the movie database
@@ -349,7 +287,7 @@ movie_metadata_connection = \
 root = Tk()
 root.wm_title('Movies Hangman')
 root.minsize(380, 380)
-root.geometry('380x480')
+root.geometry('680x480')
 
 title = PhotoImage(file='hangman_pics/title.gif')
 titleLabel = Label(root, image=title)
