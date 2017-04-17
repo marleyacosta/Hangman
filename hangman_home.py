@@ -1,5 +1,6 @@
 from tkinter import *
 import tkinter.messagebox
+from tkinter.scrolledtext import ScrolledText
 import sqlite3
 
 
@@ -174,8 +175,9 @@ def startgame():
 
     game = Toplevel()
     game.wm_title('Movies Hangman')
+    game.configure(bg="#e0e0e0")
     game.minsize(380, 380)
-    game.geometry('680x480')
+    game.geometry('680x490')
 
     man = PhotoImage(file='hangman_pics/gallows.gif')
     hiddenmovie = StringVar()
@@ -211,11 +213,58 @@ def startgame():
     bhint = Button(game, text='Hint', width=10, command=hint)
     bhint.pack()
 
-    bchatroom = Button(game, text='Chat Room', width=10, command=hint)
+    bchatroom = Button(game, text='Chat Room', width=10, command=chatroom)
     bchatroom.pack()
 
 
     game.mainloop()
+
+
+
+## enter the chatroom ##
+def chatroom():
+
+    ui_top = tkinter.Tk()
+    ui_top.wm_title("Movies Hangman Chatroom")
+    ui_top.resizable('1','1')
+
+
+    ui_messages = ScrolledText(
+        master=ui_top,
+        wrap=tkinter.WORD,
+        width=50,  # In chars
+        height=25,
+        highlightbackground = "#004d40")  # In chars
+
+    ui_input = Text(
+        master=ui_top,
+        wrap=tkinter.WORD,
+        width=50,
+        height=3,
+        highlightbackground = "#000")
+
+
+    # Bind the button-1 click of the Entry to the handler
+    #ui_input.bind('<Button-1>', quit)
+
+    send_button = Button(
+        master=ui_top,
+        text="Send",
+        bg= "#F00",
+        command=quit)
+
+
+
+
+
+
+    # Compute display position for all objects
+    ui_messages.pack(side=tkinter.TOP, fill=tkinter.BOTH)
+    ui_input.pack(side=tkinter.TOP, fill=tkinter.BOTH)
+    send_button.pack(side=tkinter.LEFT)
+
+
+
 
 
 ## quit the game ##
@@ -286,8 +335,9 @@ movie_metadata_connection = \
 
 root = Tk()
 root.wm_title('Movies Hangman')
+root.configure(bg="#e0e0e0")
 root.minsize(380, 380)
-root.geometry('680x480')
+root.geometry('680x490')
 
 title = PhotoImage(file='hangman_pics/title.gif')
 titleLabel = Label(root, image=title)
@@ -295,6 +345,7 @@ titleLabel.image = title
 titleLabel.pack()
 
 bplay = Button(root, text='Play', width=10, command=startgame)
+
 bplay.pack()
 
 bquit = Button(root, text='Quit', width=10, command=quitnow)
