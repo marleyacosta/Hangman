@@ -224,43 +224,37 @@ def startgame():
 ## enter the chatroom ##
 def chatroom():
 
-    ui_top = tkinter.Tk()
-    ui_top.wm_title("Movies Hangman Chatroom")
-    ui_top.resizable('1','1')
+    chatroom_top = tkinter.Tk()
+    chatroom_top.wm_title("Movies Hangman Chatroom")
+    chatroom_top.resizable('1','1')
 
 
-    ui_messages = ScrolledText(
-        master=ui_top,
+    chatroom_messages = ScrolledText(
+        master=chatroom_top,
         wrap=tkinter.WORD,
         width=50,  # In chars
         height=25,
         highlightbackground = "#004d40")  # In chars
 
-    ui_input = Text(
-        master=ui_top,
+    chatroom_display = Text(
+        master=chatroom_top,
         wrap=tkinter.WORD,
         width=50,
         height=3,
         highlightbackground = "#000")
 
-
-    # Bind the button-1 click of the Entry to the handler
-    #ui_input.bind('<Button-1>', quit)
+    hall = Hall()
 
     send_button = Button(
-        master=ui_top,
+        master=chatroom_top,
         text="Send",
         bg= "#F00",
         command=quit)
 
 
-
-
-
-
     # Compute display position for all objects
-    ui_messages.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-    ui_input.pack(side=tkinter.TOP, fill=tkinter.BOTH)
+    chatroom_messages.pack(side=tkinter.TOP, fill=tkinter.BOTH)
+    chatroom_display.pack(side=tkinter.TOP, fill=tkinter.BOTH)
     send_button.pack(side=tkinter.LEFT)
 
 
