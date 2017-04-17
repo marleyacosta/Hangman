@@ -1,61 +1,35 @@
+import select, socket, sys, pdb
+from chat_utility import Hall, Room, Player
+import chat_utility
 
-import sys, socket, select
+BUFFER_SIZE = 1024
 
-HOST = "localhost"
-PORT = 9009
-RECV_BUFFER = 4096
-SOCKET_LIST = []
+host = sys.argv[1] if len(sys.argv) >= 2 else ''
+listen_sock = chat_utility.create_socket((host, chat_utility.PORT))
 
-def chat_server():
+hall = Hall()
+connection_list = []
+connection_list.append(listen_sock)
 
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind((HOST, PORT))
-    server_socket.listen(10)
+while True:
 
-    SOCKET_LIST.append(server_socket)
+    read_players, write_players, error_sockets = select.select(connection_list, [], [])
+    for player in read_players:
+        if player is listen_sock:
+            new_socket, add = player.accept()
+            new_player = Player(new_socket)
+            connection_list.append(new_player)
+            hall.welcome_user(new_player)
 
-    print(("Chat server started on port " + str(PORT)))
-
-    while 1:
-
-        ready_to_read,ready_to_write,in_error = select.select(SOCKET_LIST,[],[],0)
-
-        for sock in ready_to_read:
-            if sock == server_socket:
-                sockfd, addr = server_socket.accept()
-                SOCKET_LIST.append(sockfd)
-                print(("Client (%s, %s) connected" % addr))
-
-                broadcast(server_socket, sockfd, "[%s:%s] entered our chatting room\n" % addr)
-
+        else: # new message
+            message = player.socket.recv(BUFFER_SIZE)
+            if message:
+                message = message.decode().lower()
+                hall.handle_message(player, message)
             else:
-                try:
-                    data = sock.recv(RECV_BUFFER)
-                    if data:
-                        broadcast(server_socket, sock, "\r" + '[' + str(sock.getpeername()) + '] ' + data)
-                    else:
-                        if sock in SOCKET_LIST:
-                            SOCKET_LIST.remove(sock)
+                player.socket.close()
+                connection_list.remove(player)
 
-                        broadcast(server_socket, sock, "Client (%s, %s) is offline\n" % addr)
-
-                except:
-                    broadcast(server_socket, sock, "Client (%s, %s) is offline\n" % addr)
-                    continue
-
-    server_socket.close()
-
-def broadcast (server_socket, sock, message):
-    for socket in SOCKET_LIST:
-        if socket != server_socket and socket != sock :
-            try :
-                socket.send(message)
-            except :
-                socket.close()
-                if socket in SOCKET_LIST:
-                    SOCKET_LIST.remove(socket)
-
-if __name__ == "__main__":
-
-    sys.exit(chat_server())
+    for sock in error_sockets: # close the error sockets
+        sock.close()
+        connection_list.remove(sock)
