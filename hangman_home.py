@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 from tkinter import *
 import tkinter.messagebox
 import sqlite3
@@ -64,7 +61,7 @@ def letterguess(
     movieprint = ''.join(moviearray) + '\n'
 
     movieprint = movieprint + '''
-Guessed Letters:
+Guessed Letters OR Numbers OR Symbols:
 ''' \
         + movieguessedprint + '\n'
     movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
@@ -77,7 +74,7 @@ Guessed Letters:
 
     # # win condition ##
 
-    if correctcounter == len(movie):
+    if correctcounter == (len(movie) - movie.count(' ')):
         win(game, movie)
 
     # # lose condition ##
@@ -130,8 +127,7 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 	remainingguesses = 6 - incorrectcounter
 	movieguessedprint = ''.join(guessedletters)
 	movieprint = ''.join(moviearray) + "\n"
-
-	movieprint = movieprint + "\nGuessed Letters: \n" + movieguessedprint + "\n"
+	movieprint = movieprint + "\nGuessed Letters OR Numbers OR Symbols: \n" + movieguessedprint + "\n"
 	movieprint = movieprint + "\nIncorrect Guesses Remaining: " + str(remainingguesses) + "\n"
 	hiddenmovie.set(movieprint)
 
@@ -139,7 +135,7 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 	showhangman(gamelabel1, remainingguesses)
 
 	## win condition ##
-	if correctcounter == len(movie):
+	if correctcounter == len(movie) - movie.count(' '):
 		win(game, movie)
 
 	## lose condition ##
@@ -160,18 +156,11 @@ def movieguess(
 
     movieguess = guessfield.get()
     i = 0
-    match = True
+    match = False
 
-    if len(movieguess) == 0:
-        match = False
 
-        while i < len(movieguess):
-            if movie[i].lower() != movieguess[i].lower():
-                match = False
-                i = i + 1
-
-    if len(movie) != len(movieguess):
-        match = False
+    if movie.lower() == movieguess.lower():
+        match = True
 
 
     if match:
@@ -229,9 +218,18 @@ def startgame():
     guessedletters = []
 
     i = 0
+    print(movie)
     while i < len(movie):
+
         moviearray.append('_')
         moviearray.append(' ')
+
+        #if(movie[i] == " "):
+            #moviearray.append('  ')
+        #else:
+            #moviearray.append('_')
+            #moviearray.append(' ')
+
         i = i + 1
 
     global correctcounter
@@ -244,7 +242,7 @@ def startgame():
     game = Toplevel()
     game.wm_title('Movies Hangman')
     game.minsize(380, 380)
-    game.geometry('380x480')
+    game.geometry('480x580')
 
     man = PhotoImage(file='hangman_pics/gallows.gif')
     hiddenmovie = StringVar()
@@ -261,7 +259,7 @@ def startgame():
     remainingguesses = 6 - incorrectcounter
     movieprint = ''.join(moviearray)
     movieguessedprint = ''.join(guessedletters)
-    movieprint = movieprint + '\nGuessed Letters: ' + movieguessedprint \
+    movieprint = movieprint + '\nGuessed Letters OR Numbers OR Symbols: ' + movieguessedprint \
         + '\n'
     movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
         + str(remainingguesses) + '\n'
@@ -349,7 +347,7 @@ movie_metadata_connection = \
 root = Tk()
 root.wm_title('Movies Hangman')
 root.minsize(380, 380)
-root.geometry('380x480')
+root.geometry('480x580')
 
 title = PhotoImage(file='hangman_pics/title.gif')
 titleLabel = Label(root, image=title)
