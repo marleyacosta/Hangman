@@ -4,86 +4,6 @@ import sqlite3
 
 
 ## letter guess section ##
-
-def letterguess(
-    guessfield,
-    hiddenmovie,
-    game,
-    gamelabel1,
-    man,
-    ):
-    global correctcounter
-    global incorrectcounter
-    global moviearray
-    global guessedletters
-    global movie
-
-    i = 0
-    letterinmovie = False
-    valid = True
-    letter = guessfield.get()
-    letter = letter.lower()
-    guessfield.delete(0, END)
-
-    # # account for blank input ##
-
-    if len(letter) == 0:
-        tkinter.messagebox.showinfo('Error',
-                                    'Please enter a word or letter!')
-        valid = False
-
-    # # check to see if letter is good ##
-
-    while i < len(movie) and valid:
-        if movie[i] == letter[0]:
-
-            letterinmovie = True
-            moviearray.pop(2 * i)
-            moviearray.insert(2 * i, letter[0])
-
-            if guessedletters.count(letter[0]) == 0:
-                correctcounter = correctcounter + movie.count(letter[0])
-                guessedletters.append(letter[0])
-        i = i + 1
-
-    # # incorrect guess ##
-
-    if not letterinmovie and valid:
-
-        if guessedletters.count(letter[0]) == 0:
-            guessedletters.append(letter[0])
-            incorrectcounter = incorrectcounter + 1
-
-    # # update label ##
-
-    remainingguesses = 6 - incorrectcounter
-    movieguessedprint = ''.join(guessedletters)
-    movieprint = ''.join(moviearray) + '\n'
-
-    movieprint = movieprint + '''
-Guessed Letters OR Numbers OR Symbols:
-''' \
-        + movieguessedprint + '\n'
-    movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
-        + str(remainingguesses) + '\n'
-    hiddenmovie.set(movieprint)
-
-    # # update image ##
-
-    showhangman(gamelabel1, remainingguesses)
-
-    # # win condition ##
-
-    if correctcounter == (len(movie) - movie.count(' ')):
-        win(game, movie)
-
-    # # lose condition ##
-
-    if incorrectcounter >= 6:
-        lose(game, movie)
-
-
-## letter guess section ##
 def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 	global correctcounter
 	global incorrectcounter
@@ -295,13 +215,13 @@ def quitnow():
 
 
 def win(game, movie):
-    tkinter.messagebox.showinfo('Winnerx2-Chicken-Dinner',
+    tkinter.messagebox.showinfo('WINNER',
                                 'You WIN! The movie was ' + movie + '!')
     game.withdraw()
 
 
 def lose(game, movie):
-    tkinter.messagebox.showinfo('Loser-Shmooser',
+    tkinter.messagebox.showinfo('LOSER',
                                 'You LOSE! The movie was ' + movie + '!'
                                 )
     game.withdraw()
