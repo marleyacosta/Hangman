@@ -1,6 +1,7 @@
 import select, socket, sys, pdb
-from chat_utility import Hall, Room, Player
 import chat_utility
+from chat_utility import Hall, Room, Player
+
 
 BUFFER_SIZE = 1024
 
