@@ -243,7 +243,6 @@ def chatroom():
         height=3,
         highlightbackground = "#000")
 
-    hall = Hall()
 
     send_button = Button(
         master=chatroom_top,
