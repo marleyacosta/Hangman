@@ -5,7 +5,7 @@ from chat_utility import Hall, Room, Player
 
 BUFFER_SIZE = 1024
 
-host = sys.argv[1] if len(sys.argv) >= 2 else ''
+host = 'localhost'
 listen_sock = chat_utility.create_socket((host, chat_utility.PORT))
 
 hall = Hall()
