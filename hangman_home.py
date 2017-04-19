@@ -1,6 +1,9 @@
 from tkinter import *
 import tkinter.messagebox
 from tkinter.scrolledtext import ScrolledText
+
+from chat_client import chatroomGUI
+
 import sqlite3
 
 
@@ -48,7 +51,7 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 	remainingguesses = guesseslimit(movie) - incorrectcounter
 	movieguessedprint = ''.join(guessedletters)
 	movieprint = ''.join(moviearray) + "\n"
-	movieprint = movieprint + "\nGuessed Letters OR Numbers OR Symbols: \n" + movieguessedprint + "\n"
+	movieprint = movieprint + "\nGuessed Letters OR Numbers: \n" + movieguessedprint + "\n"
 	movieprint = movieprint + "\nIncorrect Guesses Remaining: " + str(remainingguesses) + "\n"
 	hiddenmovie.set(movieprint)
 
@@ -56,7 +59,8 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 	showhangman(gamelabel1, remainingguesses)
 
 	## win condition ##
-	if correctcounter == len(movie) - movie.count(' '):
+
+	if correctcounter == len(''.join(e for e in movie if e.isalnum())):
 		win(game, movie)
 
 	## lose condition ##
@@ -67,47 +71,50 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
 ## movie guess section ##
 
 def movieguess(
-    guessfield,
-    hiddenmovie,
-    game,
-    man,
-    ):
+	guessfield,
+	hiddenmovie,
+	game,
+	man,
+	):
 
-    global movie
+	global movie
 
-    movieguess = guessfield.get()
-    i = 0
-    match = False
+	movieguess = guessfield.get()
+	i = 0
+	match = False
+
+	m = ' '.join(e for e in movie.lower() if e.isalnum())
+	mguess = ' '.join(e for e in movieguess.lower() if e.isalnum())
+
+	print(m)
+	if m == mguess:
+		match = True
 
 
-    if movie.lower() == movieguess.lower():
-        match = True
-
-
-    if match:
-        win(game, movie)
-    else:
-        lose(game, movie)
+	if match:
+		win(game, movie)
+	else:
+		lose(game, movie)
 
 
 def hint():
-    hint = 'The movie was released in ' + title_year \
-        + ' and directed by ' + director_name + '.\n' + 'Starring ' \
-        + actor_1_name + ', ' + actor_2_name + ', and ' + actor_3_name \
-        + '.'
-    tkinter.messagebox.showinfo('Hint', hint)
+	hint = 'The movie was released in ' + title_year \
+		+ ' and directed by ' + director_name + '.\n' + 'Starring ' \
+		+ actor_1_name + ', ' + actor_2_name + ', and ' + actor_3_name \
+		+ '.'
+	tkinter.messagebox.showinfo('Hint', hint)
 
 
 
 def guesseslimit(movie):
-    num_unique_letters = len(list(set(movie)))
-    print("num letters: ", num_unique_letters)
-    if(num_unique_letters <= 10):
-        num_guesses = round(num_unique_letters + (num_unique_letters / 3))
-    else:
-        num_guesses = round(num_unique_letters - (num_unique_letters / 3))
-    print(num_guesses)
-    return num_guesses
+	num_unique_letters = len(list(set(movie)))
+	print("num letters: ", num_unique_letters)
+	if(num_unique_letters <= 10):
+		num_guesses = round(num_unique_letters + (num_unique_letters / 3))
+	else:
+		num_guesses = round(num_unique_letters - (num_unique_letters / 3))
+	print(num_guesses)
+	return num_guesses
 
 
 
@@ -115,146 +122,111 @@ def guesseslimit(movie):
 
 def startgame():
 
-    global movie
-    global director_name
-    global actor_1_name
-    global actor_2_name
-    global actor_3_name
-    global title_year
+	global movie
+	global director_name
+	global actor_1_name
+	global actor_2_name
+	global actor_3_name
+	global title_year
 
-    # Get the movie
+	# Get the movie
 
-    cursor = movie_metadata_connection.cursor()
+	cursor = movie_metadata_connection.cursor()
 
-    # This generated a random row from the movie_metadata database
+	# This generated a random row from the movie_metadata database
 
-    cursor.execute('SELECT * ' + 'FROM movie_metadata '
-                   + 'ORDER BY RANDOM() ' + 'LIMIT 1')
+	cursor.execute('SELECT * ' + 'FROM movie_metadata '
+				   + 'ORDER BY RANDOM() ' + 'LIMIT 1')
 
-    results = cursor.fetchall()
+	results = cursor.fetchall()
 
-    row = results[0]
+	row = results[0]
 
-    # Get the data from the row.
+	# Get the data from the row.
 
-    director_name = row[1]
-    actor_1_name = row[3]
-    actor_2_name = row[2]
-    actor_3_name = row[5]
-    title_year = row[6]
-    movie = row[4]
+	director_name = row[1]
+	actor_1_name = row[3]
+	actor_2_name = row[2]
+	actor_3_name = row[5]
+	title_year = row[6]
+	movie = row[4]
 
-    # # lots of variables for actual game ##
+	# # lots of variables for actual game ##
 
-    global moviearray
-    moviearray = []
-    global guessedletters
-    guessedletters = []
+	global moviearray
+	moviearray = []
+	global guessedletters
+	guessedletters = []
 
-    i = 0
-    print(movie)
-    while i < len(movie):
+	i = 0
+	print(movie)
+	while i < len(movie):
 
-        moviearray.append('_')
-        moviearray.append(' ')
+		moviearray.append('_')
+		moviearray.append(' ')
 
-        #if(movie[i] == " "):
-            #moviearray.append('  ')
-        #else:
-            #moviearray.append('_')
-            #moviearray.append(' ')
+		#if(movie[i] == " "):
+			#moviearray.append('  ')
+		#else:
+			#moviearray.append('_')
+			#moviearray.append(' ')
 
-        i = i + 1
+		i = i + 1
 
-    global correctcounter
-    correctcounter = 0
-    global incorrectcounter
-    incorrectcounter = 0
+	global correctcounter
+	correctcounter = 0
+	global incorrectcounter
+	incorrectcounter = 0
 
-    # # end variables ##
+	# # end variables ##
 
-    game = Toplevel()
-    game.wm_title('Movies Hangman')
-    game.configure(bg="#e0e0e0")
-    game.minsize(380, 380)
-    game.geometry('680x490')
+	game = Toplevel()
+	game.wm_title('Movies Hangman')
+	game.configure(bg="#e0e0e0")
+	game.minsize(380, 380)
+	game.geometry('680x490')
 
-    man = PhotoImage(file='hangman_pics/gallows.gif')
-    hiddenmovie = StringVar()
-    gamelabel1 = Label(game, image=man)
-    gamelabel1.image = man
-    gamelabel1.pack()
+	man = PhotoImage(file='hangman_pics/gallows.gif')
+	hiddenmovie = StringVar()
+	gamelabel1 = Label(game, image=man)
+	gamelabel1.image = man
+	gamelabel1.pack()
 
-    gamelabel2 = Label(game, textvariable=hiddenmovie)
-    gamelabel2.pack()
+	gamelabel2 = Label(game, textvariable=hiddenmovie)
+	gamelabel2.pack()
 
-    guessfield = Entry(game)
-    guessfield.pack()
+	guessfield = Entry(game)
+	guessfield.pack()
 
-    remainingguesses = guesseslimit(movie) - incorrectcounter
-    movieprint = ''.join(moviearray)
-    movieguessedprint = ''.join(guessedletters)
-    movieprint = movieprint + '\nGuessed Letters OR Numbers OR Symbols: ' + movieguessedprint \
-        + '\n'
-    movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
-        + str(remainingguesses) + '\n'
-    hiddenmovie.set(movieprint)
+	remainingguesses = guesseslimit(movie) - incorrectcounter
+	movieprint = ''.join(moviearray)
+	movieguessedprint = ''.join(guessedletters)
+	movieprint = movieprint + '\nGuessed Letters OR Numbers OR Symbols: ' + movieguessedprint \
+		+ '\n'
+	movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
+		+ str(remainingguesses) + '\n'
+	hiddenmovie.set(movieprint)
 
-    bguessletter = Button(game, text='Guess Letter', width=10,
-                          command=lambda : letterguess(guessfield,
-                          hiddenmovie, game, gamelabel1, man))
-    bguessletter.pack()
+	bguessletter = Button(game, text='Guess Letter', width=10,
+						  command=lambda : letterguess(guessfield,
+						  hiddenmovie, game, gamelabel1, man))
+	bguessletter.pack()
 
-    bguessmovie = Button(game, text='Guess Movie', width=10,
-                         command=lambda : movieguess(guessfield,
-                         hiddenmovie, game, man))
-    bguessmovie.pack()
+	bguessmovie = Button(game, text='Guess Movie', width=10,
+						 command=lambda : movieguess(guessfield,
+						 hiddenmovie, game, man))
+	bguessmovie.pack()
 
-    bhint = Button(game, text='Hint', width=10, command=hint)
-    bhint.pack()
+	bhint = Button(game, text='Hint', width=10, command=hint)
+	bhint.pack()
 
-    bchatroom = Button(game, text='Chat Room', width=10, command=chatroom)
-    bchatroom.pack()
-
-
-    game.mainloop()
+	bchatroom = Button(game, text='Chat Room', width=10, command=chatroomGUI)
+	bchatroom.pack()
 
 
-
-## enter the chatroom ##
-def chatroom():
-
-    chatroom_top = tkinter.Tk()
-    chatroom_top.wm_title("Movies Hangman Chatroom")
-    chatroom_top.resizable('1','1')
+	game.mainloop()
 
 
-    chatroom_messages = ScrolledText(
-        master=chatroom_top,
-        wrap=tkinter.WORD,
-        width=50,  # In chars
-        height=25,
-        highlightbackground = "#004d40")  # In chars
-
-    chatroom_display = Text(
-        master=chatroom_top,
-        wrap=tkinter.WORD,
-        width=50,
-        height=3,
-        highlightbackground = "#000")
-
-
-    send_button = Button(
-        master=chatroom_top,
-        text="Send",
-        bg= "#F00",
-        command=quit)
-
-
-    # Compute display position for all objects
-    chatroom_messages.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-    chatroom_display.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-    send_button.pack(side=tkinter.LEFT)
 
 
 
@@ -263,60 +235,60 @@ def chatroom():
 ## quit the game ##
 
 def quitnow():
-    tkinter.messagebox.showinfo('Movies Hangman',
-                                'Thanks for playing! See you soon!')
-    movie_metadata_connection.close()
-    exit()
+	tkinter.messagebox.showinfo('Movies Hangman',
+								'Thanks for playing! See you soon!')
+	movie_metadata_connection.close()
+	exit()
 
 
 def win(game, movie):
-    tkinter.messagebox.showinfo('WINNER',
-                                'You WIN! The movie was ' + movie + '!')
-    game.withdraw()
+	tkinter.messagebox.showinfo('WINNER',
+								'You WIN! The movie was ' + movie + '!')
+	game.withdraw()
 
 
 def lose(game, movie):
-    tkinter.messagebox.showinfo('LOSER',
-                                'You LOSE! The movie was ' + movie + '!'
-                                )
-    game.withdraw()
+	tkinter.messagebox.showinfo('LOSER',
+								'You LOSE! The movie was ' + movie + '!'
+								)
+	game.withdraw()
 
 
 def showhangman(gamelabel1, remainingguesses):
 
-    limit = guesseslimit(movie) # 11
-    increment = round(limit / 7) # 2
-    print("increment: ", increment)
+	limit = guesseslimit(movie) # 11
+	increment = round(limit / 7) # 2
+	print("increment: ", increment)
 
 
-    if remainingguesses == limit:
-        img = PhotoImage(file='hangman_pics/gallows.gif')
-        gamelabel1.configure(image=img)
-        gamelabel1.image = img
-    if remainingguesses == (limit - increment):
-        img = PhotoImage(file='hangman_pics/head.gif')
-        gamelabel1.configure(image=img)
-        gamelabel1.image = img
-    if remainingguesses == (limit - 2 * increment):
-        img = PhotoImage(file='hangman_pics/noarms.gif')
-        gamelabel1.configure(image=img)
-        gamelabel1.image = img
-    if remainingguesses == (limit - 3 * increment):
-        img = PhotoImage(file='hangman_pics/rightarm.gif')
-        gamelabel1.configure(image=img)
-        gamelabel1.image = img
-    if remainingguesses == (limit - 4 * increment):
-        img = PhotoImage(file='hangman_pics/nolegs.gif')
-        gamelabel1.configure(image=img)
-        gamelabel1.image = img
-    if remainingguesses == (limit - 5 * increment):
-        img = PhotoImage(file='hangman_pics/almostdead.gif')
-        gamelabel1.configure(image=img)
-        gamelabel1.image = img
-    if remainingguesses == 0:
-        img = PhotoImage(file='hangman_pics/dead.gif')
-        gamelabel1.configure(image=img)
-        gamelabel1.image = img
+	if remainingguesses == limit:
+		img = PhotoImage(file='hangman_pics/gallows.gif')
+		gamelabel1.configure(image=img)
+		gamelabel1.image = img
+	if remainingguesses == (limit - increment):
+		img = PhotoImage(file='hangman_pics/head.gif')
+		gamelabel1.configure(image=img)
+		gamelabel1.image = img
+	if remainingguesses == (limit - 2 * increment):
+		img = PhotoImage(file='hangman_pics/noarms.gif')
+		gamelabel1.configure(image=img)
+		gamelabel1.image = img
+	if remainingguesses == (limit - 3 * increment):
+		img = PhotoImage(file='hangman_pics/rightarm.gif')
+		gamelabel1.configure(image=img)
+		gamelabel1.image = img
+	if remainingguesses == (limit - 4 * increment):
+		img = PhotoImage(file='hangman_pics/nolegs.gif')
+		gamelabel1.configure(image=img)
+		gamelabel1.image = img
+	if remainingguesses == (limit - 5 * increment):
+		img = PhotoImage(file='hangman_pics/almostdead.gif')
+		gamelabel1.configure(image=img)
+		gamelabel1.image = img
+	if remainingguesses == 0:
+		img = PhotoImage(file='hangman_pics/dead.gif')
+		gamelabel1.configure(image=img)
+		gamelabel1.image = img
 
 
 
@@ -324,7 +296,7 @@ def showhangman(gamelabel1, remainingguesses):
 
 global movie_metadata_connection
 movie_metadata_connection = \
-    sqlite3.connect('database/movie_metadata.sqlite')
+	sqlite3.connect('database/movie_metadata.sqlite')
 
 root = Tk()
 root.wm_title('Movies Hangman')
