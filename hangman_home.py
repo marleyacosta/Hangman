@@ -189,7 +189,7 @@ def startgame():
     gamelabel2 = Label(game, textvariable=hiddenmovie)
     gamelabel2.pack()
 
-    guessfield = Entry(game)
+    guessfield = Entry(game, highlightbackground = "#000")
     guessfield.pack()
 
     remainingguesses = guesseslimit(movie) - incorrectcounter
