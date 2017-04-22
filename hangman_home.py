@@ -2,7 +2,6 @@ from tkinter import *
 import tkinter.messagebox
 from tkinter.scrolledtext import ScrolledText
 
-from chat_client import chatroomGUI
 
 import sqlite3
 
@@ -214,17 +213,6 @@ def startgame():
     bhint = Button(game, text='Hint', width=10, command=hint)
     bhint.pack()
 
-    #bchatroom = Button(game, text='Chat Room', width=10, command=chatroomGUI)
-    #bchatroom.pack()
-
-    chatroom_display = Text(master=game,wrap=tkinter.WORD,width=50,height=4,highlightbackground = "#000")
-    chatroom_display.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-
-    chatroom_messages = ScrolledText(master=game,wrap=tkinter.WORD,width=85,height=2,highlightbackground = "#000")  # In chars
-    chatroom_messages.pack(fill="none", expand=True, side=LEFT)
-
-    send_button = Button(master=game,text="Send",bg= "#F00",command=quit)
-    send_button.pack(fill="none", expand=True, side=RIGHT)
 
 
     game.mainloop()
@@ -305,7 +293,7 @@ titleLabel = Label(root, image=title)
 titleLabel.image = title
 titleLabel.pack()
 
-bplay = Button(root, text='Play', width=10, command=startgame)
+bplay = Button(root, text='PLAY', width=10, command=startgame)
 bplay.pack(fill="none", expand=True, side=LEFT)
 
 bquit = Button(root, text='QUIT', width=10, command=quitnow)
