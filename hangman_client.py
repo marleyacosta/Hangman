@@ -182,6 +182,7 @@ def startgame():
     #movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
     #    + str(remainingguesses) + '\n'
     #hiddenmovie.set(movieprint)
+    showhangman(gamelabel1, remainingguesses)
 
     movieprint = client_socket.recv(1024).decode()
     hiddenmovie.set(movieprint)

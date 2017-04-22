@@ -38,8 +38,8 @@ totalguesses = guesseslimit(movie)
 
 connected_users = []
 #SERVER SOCKET EX
-server_name = ''
-server_port = 12000
+server_name = 'localhost'
+server_port = 2021
 server_socket = socket(AF_INET,SOCK_STREAM)
 server_socket.bind((server_name,server_port))
 server_socket.listen(1)
@@ -57,12 +57,13 @@ def handlethread(conn):
     global totalguesses
 
     while True:
-        guess = conn.recv(1024).decode()
+        guess = (conn.recv(1024)).decode()
         guesslist = list(guess)
 
         if guesslist[0] == "l":
             del guesslist[0]
 # return the new movielist and guessedletters and remainingguesses
+
             letterguess(conn, ''.join(guesslist))
 
         elif guesslist[0] == "m":
@@ -86,8 +87,6 @@ def handlethread(conn):
 # maybe send remainingguesses instead..
             conn.sendto(str(totalguesses).encode(), user)
             time.sleep(0.5)
-
-
 
 
 ## letter guess section ##
