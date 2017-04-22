@@ -3,6 +3,16 @@ import time
 import sqlite3
 import threading
 
+def guesseslimit(movie):
+    num_unique_letters = len(list(set(movie)))
+    print("num letters: ", num_unique_letters)
+    if(num_unique_letters <= 10):
+        num_guesses = round(num_unique_letters + (num_unique_letters / 3))
+    else:
+        num_guesses = round(num_unique_letters - (num_unique_letters / 3))
+    #print(num_guesses)
+    return num_guesses
+
 
 global movie_metadata_connection
 movie_metadata_connection = \
@@ -35,15 +45,7 @@ server_socket.bind((server_name,server_port))
 server_socket.listen(1)
 print('The server is ready to receive')
 
-def guesseslimit(movie):
-    num_unique_letters = len(list(set(movie)))
-    print("num letters: ", num_unique_letters)
-    if(num_unique_letters <= 10):
-        num_guesses = round(num_unique_letters + (num_unique_letters / 3))
-    else:
-        num_guesses = round(num_unique_letters - (num_unique_letters / 3))
-    #print(num_guesses)
-    return num_guesses
+
 
 def handlethread(conn):
     global director_name
