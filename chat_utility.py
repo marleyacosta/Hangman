@@ -1,8 +1,13 @@
 import socket, pdb
 
+from tkinter import *
+import tkinter.messagebox
+from tkinter.scrolledtext import ScrolledText
+
 MAX_USERS = 30
 PORT = 2021
 QUIT_STRING = '<$quit$>'
+
 
 
 def create_socket(address):
@@ -14,12 +19,29 @@ def create_socket(address):
     print("Listening at: ", address)
     return s
 
+
+
 class Hall:
     def __init__(self):
         self.rooms = {}
         self.room_player_map = {}
 
     def welcome_user(self, new_player):
+        top = Toplevel()
+        top.wm_title("Welcome to the Movies Hangman Chatroom.")
+        top.minsize(200,100)
+        top.geometry("300x80")
+
+        label = Label(top)
+        label.pack()
+
+        e = Entry(top, width=30)
+        e.insert(0, "What is your name:")
+        e.pack()
+
+        benter = Button(top, text="Submit", width=7, command= lambda:startgame(e, top))
+        benter.pack()
+
         new_player.socket.sendall(b'Welcome to the Movies Hangman Chatroom.\nWhat is your name:\n')
 
     def list_rooms(self, player):
