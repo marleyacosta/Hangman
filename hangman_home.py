@@ -86,7 +86,7 @@ def movieguess(
 	m = ' '.join(e for e in movie.lower() if e.isalnum())
 	mguess = ' '.join(e for e in movieguess.lower() if e.isalnum())
 
-
+	print(m)
 	if m == mguess:
 		match = True
 
@@ -108,12 +108,12 @@ def hint():
 
 def guesseslimit(movie):
 	num_unique_letters = len(list(set(movie)))
-
+	print("num letters: ", num_unique_letters)
 	if(num_unique_letters <= 10):
 		num_guesses = round(num_unique_letters + (num_unique_letters / 3))
 	else:
 		num_guesses = round(num_unique_letters - (num_unique_letters / 3))
-
+	print(num_guesses)
 	return num_guesses
 
 
@@ -182,7 +182,7 @@ def startgame():
 
 	game = Toplevel()
 	game.wm_title('Movies Hangman')
-	game.configure(bg="#66bb6a")
+	game.configure(bg="#e0e0e0")
 	game.minsize(380, 380)
 	game.geometry('680x490')
 
@@ -201,27 +201,27 @@ def startgame():
 	remainingguesses = guesseslimit(movie) - incorrectcounter
 	movieprint = ''.join(moviearray)
 	movieguessedprint = ''.join(guessedletters)
-
-	movieprint = movieprint + "\nGuessed Letters OR Numbers: \n" + movieguessedprint + "\n"
-	movieprint = movieprint + "\nIncorrect Guesses Remaining: " + str(remainingguesses) + "\n"
-
+	movieprint = movieprint + '\nGuessed Letters OR Numbers OR Symbols: ' + movieguessedprint \
+		+ '\n'
+	movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
+		+ str(remainingguesses) + '\n'
 	hiddenmovie.set(movieprint)
 
 	bguessletter = Button(game, text='Guess Letter', width=10,
 						  command=lambda : letterguess(guessfield,
 						  hiddenmovie, game, gamelabel1, man))
-	bguessletter.pack(fill="none", expand=True, side=LEFT)
+	bguessletter.pack()
 
 	bguessmovie = Button(game, text='Guess Movie', width=10,
 						 command=lambda : movieguess(guessfield,
 						 hiddenmovie, game, man))
-	bguessmovie.pack(fill="none", expand=True, side=LEFT)
+	bguessmovie.pack()
 
 	bhint = Button(game, text='Hint', width=10, command=hint)
-	bhint.pack(fill="none", expand=True, side=RIGHT)
+	bhint.pack()
 
-	bchatroom = Button(game, text='Chat Room', width=10, command=quit)
-	bchatroom.pack(fill="none", expand=True, side=RIGHT)
+	bchatroom = Button(game, text='Chat Room', width=10, command=chatroomGUI)
+	bchatroom.pack()
 
 
 	game.mainloop()
@@ -235,20 +235,21 @@ def startgame():
 ## quit the game ##
 
 def quitnow():
+	tkinter.messagebox.showinfo('Movies Hangman',
+								'Thanks for playing! See you soon!')
 	movie_metadata_connection.close()
-
 	exit()
 
 
 def win(game, movie):
 	tkinter.messagebox.showinfo('WINNER',
-								"You WIN! The movie was '"  + movie  + "'")
+								'You WIN! The movie was ' + movie + '!')
 	game.withdraw()
 
 
 def lose(game, movie):
 	tkinter.messagebox.showinfo('LOSER',
-								"You LOSE! The movie was '"  + movie + "'"
+								'You LOSE! The movie was ' + movie + '!'
 								)
 	game.withdraw()
 
@@ -257,7 +258,7 @@ def showhangman(gamelabel1, remainingguesses):
 
 	limit = guesseslimit(movie) # 11
 	increment = round(limit / 7) # 2
-
+	print("increment: ", increment)
 
 
 	if remainingguesses == limit:
@@ -298,8 +299,8 @@ movie_metadata_connection = \
 	sqlite3.connect('database/movie_metadata.sqlite')
 
 root = Tk()
-root.configure(bg="#4db6ac")
 root.wm_title('Movies Hangman')
+root.configure(bg="#e0e0e0")
 root.minsize(380, 380)
 root.geometry('680x490')
 
@@ -308,11 +309,11 @@ titleLabel = Label(root, image=title)
 titleLabel.image = title
 titleLabel.pack()
 
-bplay = Button(root, text='PLAY', width=10, command=startgame)
+bplay = Button(root, text='Play', width=10, command=startgame)
 
-bplay.pack(fill="none", expand=True, side=LEFT)
+bplay.pack()
 
-bquit = Button(root, text='QUIT', width=10, command=quitnow)
-bquit.pack(fill="none", expand=True, side=LEFT)
+bquit = Button(root, text='Quit', width=10, command=quitnow)
+bquit.pack()
 
 mainloop()
