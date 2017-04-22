@@ -2,66 +2,93 @@ from tkinter import *
 import tkinter.messagebox
 from tkinter.scrolledtext import ScrolledText
 import sqlite3
+import threading
+import time
+from socket import *
 
+UDPclientSocket = socket(AF_INET, SOCK_DGRAM)
 
+def UDP_Pinger():
+    while 1:
+
+        ##UDP BEGIN
+        global UDPclientSocket
+        UDPclientSocket.settimeout(1)
+        message = "Ping: "
+        addr = ('localhost', 2021)
+
+        start = time.time()
+        UDPclientSocket.sendto(message.encode(), addr)
+        try:
+            data, server = UDPclientSocket.recvfrom(1024)
+            end = time.time()
+            elapsed = end - start
+            print ('%s %f' % (data, elapsed))
+        except timeout:
+            print ('REQUEST TIMED OUT')
+
+        ##UDP END
+
+thread_udp = threading.Thread(target=UDP_Pinger, args=())
+thread_udp.start()
 ## letter guess section ##
 def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
-	global correctcounter
-	global incorrectcounter
-	global moviearray
-	global guessedletters
-	global movie
+    global correctcounter
+    global incorrectcounter
+    global moviearray
+    global guessedletters
+    global movie
 
-	i = 0
-	letterinmovie = False
-	valid = True
-	letter = guessfield.get()
-	letter = letter.lower()
-	guessfield.delete(0, END)
+    i = 0
+    letterinmovie = False
+    valid = True
+    letter = guessfield.get()
+    letter = letter.lower()
+    guessfield.delete(0, END)
 
-	## account for blank input ##
-	if (len(letter) == 0):
-		tkinter.messagebox.showinfo("Error", "Please enter a word or letter!")
-		valid = False
+    ## account for blank input ##
+    if (len(letter) == 0):
+        tkinter.messagebox.showinfo("Error", "Please enter a word or letter!")
+        valid = False
 
-	## check to see if letter is good ##
-	while (i < len(movie) and valid):
-		if movie[i].lower() == letter[0]:
+    ## check to see if letter is good ##
+    while (i < len(movie) and valid):
+        if movie[i].lower() == letter[0]:
 
-			letterinmovie = True
-			moviearray.pop(2*i)
-			moviearray.insert(2*i, letter[0])
+            letterinmovie = True
+            moviearray.pop(2*i)
+            moviearray.insert(2*i, letter[0])
 
-			if guessedletters.count(letter[0]) == 0:
-				correctcounter = correctcounter + movie.count(letter[0].lower()) + movie.count(letter[0].upper())
-				guessedletters.append(letter[0])
-		i = i + 1
+            if guessedletters.count(letter[0]) == 0:
+                correctcounter = correctcounter + movie.count(letter[0].lower()) + movie.count(letter[0].upper())
+                guessedletters.append(letter[0])
+        i = i + 1
 
-	## incorrect guess ##
-	if (not letterinmovie and valid):
+    ## incorrect guess ##
+    if (not letterinmovie and valid):
 
-		if guessedletters.count(letter[0]) == 0:
-			guessedletters.append(letter[0])
-			incorrectcounter = incorrectcounter + 1
+        if guessedletters.count(letter[0]) == 0:
+            guessedletters.append(letter[0])
+            incorrectcounter = incorrectcounter + 1
 
-	## update label ##
-	remainingguesses = guesseslimit(movie) - incorrectcounter
-	movieguessedprint = ''.join(guessedletters)
-	movieprint = ''.join(moviearray) + "\n"
-	movieprint = movieprint + "\nGuessed Letters OR Numbers OR Symbols: \n" + movieguessedprint + "\n"
-	movieprint = movieprint + "\nIncorrect Guesses Remaining: " + str(remainingguesses) + "\n"
-	hiddenmovie.set(movieprint)
+    ## update label ##
+    remainingguesses = guesseslimit(movie) - incorrectcounter
+    movieguessedprint = ''.join(guessedletters)
+    movieprint = ''.join(moviearray) + "\n"
+    movieprint = movieprint + "\nGuessed Letters OR Numbers OR Symbols: \n" + movieguessedprint + "\n"
+    movieprint = movieprint + "\nIncorrect Guesses Remaining: " + str(remainingguesses) + "\n"
+    hiddenmovie.set(movieprint)
 
-	## update image ##
-	showhangman(gamelabel1, remainingguesses)
+    ## update image ##
+    showhangman(gamelabel1, remainingguesses)
 
-	## win condition ##
-	if correctcounter == len(movie) - movie.count(' '):
-		win(game, movie)
+    ## win condition ##
+    if correctcounter == len(movie) - movie.count(' '):
+        win(game, movie)
 
-	## lose condition ##
-	if incorrectcounter >= guesseslimit(movie):
-		lose(game, movie)
+    ## lose condition ##
+    if incorrectcounter >= guesseslimit(movie):
+        lose(game, movie)
 
 
 ## movie guess section ##
@@ -263,9 +290,8 @@ def chatroom():
 ## quit the game ##
 
 def quitnow():
-    tkinter.messagebox.showinfo('Movies Hangman',
-                                'Thanks for playing! See you soon!')
     movie_metadata_connection.close()
+    UDPclientSocket.close()
     exit()
 
 

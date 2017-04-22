@@ -104,9 +104,7 @@ def handlethread(conn):
                 # return true or false...
                     result = movieguess(conn, ''.join(guesslist))
 
-                for user in connected_users:
-                    conn.sendto(str(rowstring).encode(), user)
-                    time.sleep(0.5)
+
                     #conn.sendto(str(director_name).encode(), user)
                     #time.sleep(0.5)
                     #conn.sendto(str(actor_1_name).encode(), user)
@@ -235,10 +233,17 @@ def movieguess(
 while True:
     conn, addr = server_socket.accept()    #maybe move outside loop?
     print("Connected by", addr)
+
+
     #sentence = connectionSocket.recv(1024).decode()
     #capitalizedSentence = sentence.upper()
     #connectionSocket.send(capitalizedSentence.encode()) 
     connected_users.append(addr)
+
+    for user in connected_users:
+        conn.sendto(str(rowstring).encode(), user)
+        time.sleep(0.5)
+
     t = threading.Thread(target=handlethread, args=(conn,))
     t.start()
 

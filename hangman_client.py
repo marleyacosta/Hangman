@@ -24,6 +24,7 @@ client_socket.connect((server_name, server_port))
 
 #global variables
 movie = ""
+rowstring = ""
 #director_name = ""
 #actor_1_name = ""
 #actor_2_name = ""
@@ -36,6 +37,11 @@ guessedletters = []
 #totalguesses = 0
 #remainingguesses = 0
 #movie_metadata_connection =
+
+
+
+
+
 
 def UDP_Pinger():
     while 1:
@@ -163,7 +169,7 @@ def startgame():
     #remainingguesses = int(client_socket.recv(1024).decode())
     global rowstring
     row = rowstring.split('-')
-    movie = row[4]
+    movie = row[3]
 
     i = 0
     #print(movie)
@@ -193,7 +199,7 @@ def startgame():
 
     game = Toplevel()
     game.wm_title('Movies Hangman')
-    game.configure(bg="#e0e0e0")``
+    game.configure(bg="#e0e0e0")
     game.minsize(380, 380)
     game.geometry('680x490')
 
@@ -325,14 +331,5 @@ bplay.pack()
 bquit = Button(root, text='Quit', width=10, command=quitnow)
 bquit.pack()
 
-mainloop()
 
-try:
-    rowstring = (client_socket.recv(buffer_size)).decode()
-    totalguesses = (client_socket.recv(buffer_size)).decode()
-    match = (client_socket.recv(buffer_size)).decode()
-    movieprint = (client_socket.recv(buffer_size)).decode()
-    remainingguesses = (client_socket.recv(buffer_size)).decode()
-except Exception as e:
-    print(e)
-    sys.exit(1)
+mainloop()
