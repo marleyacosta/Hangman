@@ -75,7 +75,7 @@ def handlethread(conn):
     while True:
         try:
             guess = conn.recv(1024)
-        except socket.error, e:
+        except socket.error as e:
             err = e.args[0]
             if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
                 time.sleep(1)
