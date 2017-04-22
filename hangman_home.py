@@ -4,8 +4,35 @@ from tkinter.scrolledtext import ScrolledText
 
 
 import sqlite3
+import threading
+import time
+from socket import *
 
+UDPclientSocket = socket(AF_INET, SOCK_DGRAM)
 
+def UDP_Pinger():
+    while 1:
+
+        ##UDP BEGIN
+        global UDPclientSocket
+        UDPclientSocket.settimeout(1)
+        message = "Ping: "
+        addr = ('localhost', 2021)
+
+        start = time.time()
+        UDPclientSocket.sendto(message.encode(), addr)
+        try:
+            data, server = UDPclientSocket.recvfrom(1024)
+            end = time.time()
+            elapsed = end - start
+            print ('%s %f' % (data, elapsed))
+        except timeout:
+            print ('REQUEST TIMED OUT')
+
+        ##UDP END
+
+thread_udp = threading.Thread(target=UDP_Pinger, args=())
+thread_udp.start()
 ## letter guess section ##
 def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
     global correctcounter
@@ -50,7 +77,9 @@ def letterguess(guessfield, hiddenmovie, game, gamelabel1, man):
     remainingguesses = guesseslimit(movie) - incorrectcounter
     movieguessedprint = ''.join(guessedletters)
     movieprint = ''.join(moviearray) + "\n"
-    movieprint = movieprint + "\nGuessed Letters OR Numbers: \n" + movieguessedprint + "\n"
+
+    movieprint = movieprint + "\nGuessed Letters OR Numbers OR Symbols: \n" + movieguessedprint + "\n"
+
     movieprint = movieprint + "\nIncorrect Guesses Remaining: " + str(remainingguesses) + "\n"
     hiddenmovie.set(movieprint)
 
@@ -222,6 +251,7 @@ def startgame():
 
 def quitnow():
     movie_metadata_connection.close()
+    UDPclientSocket.close()
     exit()
 
 
