@@ -38,9 +38,30 @@ guessedletters = []
 #remainingguesses = 0
 #movie_metadata_connection =
 
+<<<<<<< HEAD
 
 
 
+=======
+def send_one_message(sock, data):
+    length = len(data)
+    sock.sendall(struct.pack('!I', length))
+    sock.sendall(data)
+
+def recv_one_message(sock):
+    lengthbuf = recvall(sock, 4)
+    length, = struct.unpack('!I', lengthbuf)
+    return recvall(sock, length)
+
+def recvall(sock, count):
+    buf = b''
+    while count:
+        newbuf = sock.recv(count)
+        if not newbuf: return None
+        buf += newbuf
+        count -= len(newbuf)
+    return buf
+>>>>>>> origin/nicolette
 
 
 def UDP_Pinger():
@@ -332,4 +353,21 @@ bquit = Button(root, text='Quit', width=10, command=quitnow)
 bquit.pack()
 
 
+<<<<<<< HEAD
 mainloop()
+=======
+try:
+    #rowstring = (client_socket.recv(buffer_size)).decode()
+    #totalguesses = (client_socket.recv(buffer_size)).decode()
+    #match = (client_socket.recv(buffer_size)).decode()
+    #movieprint = (client_socket.recv(buffer_size)).decode()
+    #remainingguesses = (client_socket.recv(buffer_size)).decode()
+    rowstring = recv_one_message(client_socket)
+    totalguesses = recv_one_message(client_socket)
+    match = recv_one_message(client_socket)
+    movieprint = recv_one_message(client_socket)
+    remainingguesses = recv_one_message(client_socket)
+except Exception as e:
+    print(e)
+    sys.exit(1)
+>>>>>>> origin/nicolette
