@@ -17,32 +17,7 @@ def chatroomGUI():
     chatroom_top.resizable('1','1')
 
 
-    chatroom_messages = ScrolledText(
-        master=chatroom_top,
-        wrap=tkinter.WORD,
-        width=50,  # In chars
-        height=25,
-        highlightbackground = "#004d40")  # In chars
 
-    chatroom_display = Text(
-        master=chatroom_top,
-        wrap=tkinter.WORD,
-        width=50,
-        height=3,
-        highlightbackground = "#000")
-
-
-    send_button = Button(
-        master=chatroom_top,
-        text="Send",
-        bg= "#F00",
-        command=quit)
-
-
-    # Compute display position for all objects
-    chatroom_messages.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-    chatroom_display.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-    send_button.pack(side=tkinter.LEFT)
 
     hostname = 'localhost' #sys.argv[1]
     BUFFER_SIZE = 1024
