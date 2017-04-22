@@ -4,6 +4,7 @@ import tkinter.messagebox
 #from tkinter.scrolledText import ScrolledText
 import sqlite3
 import threading
+import time
 
 
 
@@ -11,6 +12,7 @@ import threading
 
 server_name = 'localhost'
 server_port = 2021
+buffer_size = 1024
 client_socket = socket(AF_INET, SOCK_STREAM)
 client_socket.connect((server_name, server_port))
 # sentence = input('Input lowercase sentence:')
@@ -21,18 +23,18 @@ client_socket.connect((server_name, server_port))
 
 
 #global variables
-movie = ""
-director_name = ""
-actor_1_name = ""
-actor_2_name = ""
-actor_3_name = ""
-title_year = ""
+#movie = ""
+#director_name = ""
+#actor_1_name = ""
+#actor_2_name = ""
+#actor_3_name = ""
+#title_year = ""
 correctcounter = 0
 incorrectcounter = 0
 moviearray = []
 guessedletters = []
-totalguesses = 0
-remainingguesses = 0
+#totalguesses = 0
+#remainingguesses = 0
 #movie_metadata_connection =
 
 def UDP_Pinger():
@@ -42,7 +44,7 @@ def UDP_Pinger():
         UDPclientSocket = socket(AF_INET, SOCK_DGRAM)
         UDPclientSocket.settimeout(1)
         message = "Ping: "
-        addr = ("127.0.0.1", 12000)
+        addr = ('localhost', 2021)
 
         start = time.time()
         UDPclientSocket.sendto(message.encode(), addr)
@@ -101,22 +103,24 @@ def chatroom():
 
 
 ########## probably dont need for client. get remainingguesses from server #######
-def guesseslimit(movie):
-    num_unique_letters = len(list(set(movie)))
-    print("num letters: ", num_unique_letters)
-    if(num_unique_letters <= 10):
-        num_guesses = round(num_unique_letters + (num_unique_letters / 3))
-    else:
-        num_guesses = round(num_unique_letters - (num_unique_letters / 3))
-    #print(num_guesses)
-    return num_guesses
+#def guesseslimit(movie):
+#    num_unique_letters = len(list(set(movie)))
+#    print("num letters: ", num_unique_letters)
+#    if(num_unique_letters <= 10):
+#        num_guesses = round(num_unique_letters + (num_unique_letters / 3))
+#    else:
+#        num_guesses = round(num_unique_letters - (num_unique_letters / 3))
+#    #print(num_guesses)
+#    return num_guesses
 
 
 # get vars from server #######################################
 def hint():
-    hint = 'The movie was released in ' + title_year \
-        + ' and directed by ' + director_name + '.\n' + 'Starring ' \
-        + actor_1_name + ', ' + actor_2_name + ', and ' + actor_3_name \
+    global rowstring
+    row = rowstring.split('-')
+    hint = 'The movie was released in ' + row[6] \
+        + ' and directed by ' + row[1] + '.\n' + 'Starring ' \
+        + row[3] + ', ' + row[2] + ', and ' + row[5] \
         + '.'
     tkinter.messagebox.showinfo('Hint', hint)
 
@@ -142,12 +146,12 @@ def startgame():
 
     #row = results[0]
 
-    director_name = client_socket.recv(1024).decode()
-    actor_1_name = client_socket.recv(1024).decode()
-    actor_2_name = client_socket.recv(1024).decode()
-    actor_3_name = client_socket.recv(1024).decode()
-    title_year = client_socket.recv(1024).decode()
-    movie = client_socket.recv(1024).decode()
+    #director_name = client_socket.recv(1024).decode()
+    #actor_1_name = client_socket.recv(1024).decode()
+    #actor_2_name = client_socket.recv(1024).decode()
+    #actor_3_name = client_socket.recv(1024).decode()
+    #title_year = client_socket.recv(1024).decode()
+    #movie = client_socket.recv(1024).decode()
 
     #global movie
     global moviearray
@@ -155,8 +159,8 @@ def startgame():
     global remainingguesses
     global totalguesses
 
-    totalguesses = int(client_socket.recv(1024).decode())
-    remainingguesses = int(client_socket.recv(1024).decode())
+    #totalguesses = int(client_socket.recv(1024).decode())
+    #remainingguesses = int(client_socket.recv(1024).decode())
 
     i = 0
     #print(movie)
@@ -178,9 +182,15 @@ def startgame():
     global incorrectcounter
     incorrectcounter = 0
 
+    global match
+    if match == "True":
+        win(game, movie)
+    elif match == "False":
+        lose(game, movie)
+
     game = Toplevel()
     game.wm_title('Movies Hangman')
-    game.configure(bg="#e0e0e0")
+    game.configure(bg="#e0e0e0")``
     game.minsize(380, 380)
     game.geometry('680x490')
 
@@ -209,7 +219,8 @@ def startgame():
 
     showhangman(gamelabel1, remainingguesses)
 
-    movieprint = client_socket.recv(1024).decode()
+    global movieprint
+    #movieprint = client_socket.recv(1024).decode()
     hiddenmovie.set(movieprint)
 
     bguessletter = Button(game, text='Guess Letter', width=10,
@@ -246,8 +257,9 @@ def lose(game, movie):
 
 def showhangman(gamelabel1, remainingguesses):
     global totalguesses
-    limit = totalguesses
+    limit = int(totalguesses)
     increment = round(limit / 7)
+    remainingguesses = int(remainingguesses)
     #print("increment: ", increment)
 
     if remainingguesses == limit:
@@ -281,6 +293,16 @@ def showhangman(gamelabel1, remainingguesses):
 
 
 
+
+try:
+    rowstring = (client_socket.recv(buffer_size)).decode()
+    totalguesses = (client_socket.recv(buffer_size)).decode()
+    match = (client_socket.recv(buffer_size)).decode()
+    movieprint = (client_socket.recv(buffer_size)).decode()
+    remainingguesses = (client_socket.recv(buffer_size)).decode()
+except Exception as e:
+    print(e)
+    sys.exit(1)
 
 
 

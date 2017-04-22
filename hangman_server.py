@@ -2,6 +2,9 @@ from socket import *
 import time
 import sqlite3
 import threading
+import random
+from tkinter import *
+import tkinter.messagebox
 
 #UDP SERVER
 UDPserverSocket = socket(AF_INET, SOCK_DGRAM)
@@ -49,6 +52,8 @@ actor_3_name = row[5]
 title_year = row[6]
 movie = row[4]
 
+rowstring = '-'.join(row)
+
 
 totalguesses = guesseslimit(movie)
 
@@ -85,35 +90,39 @@ def handlethread(conn):
                 print(e)
                 sys.exit(1)
         else:
-            guessdecode = guess.decode()
-            guesslist = list(guessdecode)
+            if guess:
+                guessdecode = guess.decode()
+                guesslist = list(guessdecode)
 
-            if guesslist[0] == "l":
-                del guesslist[0]
-# return the new movielist and guessedletters and remainingguesses
-                letterguess(conn, ''.join(guesslist))
+                if guesslist[0] == "l":
+                    del guesslist[0]
+    # return the new movielist and guessedletters and remainingguesses
+                    letterguess(conn, ''.join(guesslist))
 
-            elif guesslist[0] == "m":
-                del guesslist[0]
-            # return true or false...
-                result = movieguess(conn, ''.join(guesslist))
+                elif guesslist[0] == "m":
+                    del guesslist[0]
+                # return true or false...
+                    result = movieguess(conn, ''.join(guesslist))
 
-            for user in connected_users:
-                conn.sendto(str(director_name).encode(), user)
-                time.sleep(0.5)
-                conn.sendto(str(actor_1_name).encode(), user)
-                time.sleep(0.5)
-                conn.sendto(str(actor_2_name).encode(), user)
-                time.sleep(0.5)
-                conn.sendto(str(actor_3_name).encode(), user)
-                time.sleep(0.5)
-                conn.sendto(str(title_year).encode(), user)
-                time.sleep(0.5)
-                conn.sendto(str(movie).encode(), user)
-                time.sleep(0.5)
-    # maybe send remainingguesses instead..
-                conn.sendto(str(totalguesses).encode(), user)
-                time.sleep(0.5)
+                for user in connected_users:
+                    conn.sendto(str(rowstring).encode(), user)
+                    time.sleep(0.5)
+                    #conn.sendto(str(director_name).encode(), user)
+                    #time.sleep(0.5)
+                    #conn.sendto(str(actor_1_name).encode(), user)
+                    #time.sleep(0.5)
+                    #conn.sendto(str(actor_2_name).encode(), user)
+                    #time.sleep(0.5)
+                    #conn.sendto(str(actor_3_name).encode(), user)
+                    #time.sleep(0.5)
+                    #conn.sendto(str(title_year).encode(), user)
+                    #time.sleep(0.5)
+                    #conn.sendto(str(movie).encode(), user)
+                    #time.sleep(0.5)
+        # maybe send remainingguesses instead..
+                    conn.sendto(str(totalguesses).encode(), user)
+                    time.sleep(0.5)
+
 
 
     ## letter guess section ##
@@ -169,16 +178,17 @@ def letterguess(conn, guessfield, hiddenmovie):
 # CLIENT HANDLING:
     ## update image ##
     #showhangman(gamelabel1, remainingguesses)
+    match = " "
 
     ## win condition ##
     if correctcounter == len(movie) - movie.count(' '):
         #win(game, movie)
-        match = True
+        match = "True"
 
     ## lose condition ##
     if incorrectcounter >= guesseslimit(movie):
         #lose(game, movie)
-        match = False
+        match = "False"
 
     for user in connected_users:
         conn.sendto(str(match).encode(), user)
@@ -202,14 +212,17 @@ def movieguess(
 
     movieguess = guessfield.get()
     i = 0
-    match = False
+    match = "False"
 
     if movie.lower() == movieguess.lower():
-        match = True
+        match = "True"
 
 # SEND MATCH TO CLIENT
+    filler = " "
     for user in connected_users:
         conn.sendto(str(match).encode(), user)
+        conn.sendto(filler.encode(), user)
+        conn.sendto(filler.encode(), user)
     #if match:
         #win(game, movie)
     #else:
