@@ -22,6 +22,26 @@ def udp_ping():
 thread_udp = threading.Thread(target=udp_ping, args=())
 thread_udp.start()
 
+def send_one_message(sock, data):
+    length = len(data)
+    sock.sendall(struct.pack('!I', length))
+    sock.sendall(data)
+
+def recv_one_message(sock):
+    lengthbuf = recvall(sock, 4)
+    length, = struct.unpack('!I', lengthbuf)
+    return recvall(sock, length)
+
+def recvall(sock, count):
+    buf = b''
+    while count:
+        newbuf = sock.recv(count)
+        if not newbuf: return None
+        buf += newbuf
+        count -= len(newbuf)
+    return buf
+
+
 def guesseslimit(movie):
     num_unique_letters = len(list(set(movie)))
     print("num letters: ", num_unique_letters)
@@ -104,9 +124,9 @@ def handlethread(conn):
                 # return true or false...
                     result = movieguess(conn, ''.join(guesslist))
 
-                for user in connected_users:
-                    conn.sendto(str(rowstring).encode(), user)
-                    time.sleep(0.5)
+                #for user in connected_users:
+                    #conn.sendto(str(rowstring).encode(), user)
+                    #time.sleep(0.5)
                     #conn.sendto(str(director_name).encode(), user)
                     #time.sleep(0.5)
                     #conn.sendto(str(actor_1_name).encode(), user)
@@ -120,8 +140,8 @@ def handlethread(conn):
                     #conn.sendto(str(movie).encode(), user)
                     #time.sleep(0.5)
         # maybe send remainingguesses instead..
-                    conn.sendto(str(totalguesses).encode(), user)
-                    time.sleep(0.5)
+                    #conn.sendto(str(totalguesses).encode(), user)
+                    #time.sleep(0.5)
 
 
 
@@ -191,12 +211,16 @@ def letterguess(conn, guessfield, hiddenmovie):
         match = "False"
 
     for user in connected_users:
-        conn.sendto(str(match).encode(), user)
+        #conn.sendto(str(match).encode(), user)
+        send_one_message(conn, match)
         time.sleep(0.5)
-        conn.sendto(str(movieprint).encode(), user)
+        #conn.sendto(str(movieprint).encode(), user)
+        send_one_message(conn, movieprint)
         time.sleep(0.5)
-        conn.sendto(str(remainingguesses).encode(), user)
+        #conn.sendto(str(remainingguesses).encode(), user)
+        send_one_message(conn, remainingguesses)
 
+        time.sleep(0.5)
 
 
 ## movie guess section ##
@@ -220,9 +244,15 @@ def movieguess(
 # SEND MATCH TO CLIENT
     filler = " "
     for user in connected_users:
-        conn.sendto(str(match).encode(), user)
-        conn.sendto(filler.encode(), user)
-        conn.sendto(filler.encode(), user)
+        #conn.sendto(str(match).encode(), user)
+        #conn.sendto(filler.encode(), user)
+        #conn.sendto(filler.encode(), user)
+        send_one_message(conn, match)
+        time.sleep(0.5)
+        send_one_message(conn, filler)
+        time.sleep(0.5)
+        send_one_message(conn, filler)
+        time.sleep(0.5)
     #if match:
         #win(game, movie)
     #else:
@@ -235,10 +265,20 @@ def movieguess(
 while True:
     conn, addr = server_socket.accept()    #maybe move outside loop?
     print("Connected by", addr)
+
+
     #sentence = connectionSocket.recv(1024).decode()
     #capitalizedSentence = sentence.upper()
     #connectionSocket.send(capitalizedSentence.encode()) 
     connected_users.append(addr)
+
+    for user in connected_users:
+        #conn.sendto(str(rowstring).encode(), user)
+        send_one_message(conn, rowstring)
+        time.sleep(0.5)
+        send_one_message(conn, totalguesses)
+        time.sleep(0.5)
+
     t = threading.Thread(target=handlethread, args=(conn,))
     t.start()
 

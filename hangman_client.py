@@ -24,6 +24,7 @@ client_socket.connect((server_name, server_port))
 
 #global variables
 movie = ""
+rowstring = ""
 #director_name = ""
 #actor_1_name = ""
 #actor_2_name = ""
@@ -36,6 +37,26 @@ guessedletters = []
 #totalguesses = 0
 #remainingguesses = 0
 #movie_metadata_connection =
+
+def send_one_message(sock, data):
+    length = len(data)
+    sock.sendall(struct.pack('!I', length))
+    sock.sendall(data)
+
+def recv_one_message(sock):
+    lengthbuf = recvall(sock, 4)
+    length, = struct.unpack('!I', lengthbuf)
+    return recvall(sock, length)
+
+def recvall(sock, count):
+    buf = b''
+    while count:
+        newbuf = sock.recv(count)
+        if not newbuf: return None
+        buf += newbuf
+        count -= len(newbuf)
+    return buf
+
 
 def UDP_Pinger():
     while 1:
@@ -193,7 +214,7 @@ def startgame():
 
     game = Toplevel()
     game.wm_title('Movies Hangman')
-    game.configure(bg="#e0e0e0")``
+    game.configure(bg="#e0e0e0")
     game.minsize(380, 380)
     game.geometry('680x490')
 
@@ -328,11 +349,16 @@ bquit.pack()
 mainloop()
 
 try:
-    rowstring = (client_socket.recv(buffer_size)).decode()
-    totalguesses = (client_socket.recv(buffer_size)).decode()
-    match = (client_socket.recv(buffer_size)).decode()
-    movieprint = (client_socket.recv(buffer_size)).decode()
-    remainingguesses = (client_socket.recv(buffer_size)).decode()
+    #rowstring = (client_socket.recv(buffer_size)).decode()
+    #totalguesses = (client_socket.recv(buffer_size)).decode()
+    #match = (client_socket.recv(buffer_size)).decode()
+    #movieprint = (client_socket.recv(buffer_size)).decode()
+    #remainingguesses = (client_socket.recv(buffer_size)).decode()
+    rowstring = recv_one_message(client_socket)
+    totalguesses = recv_one_message(client_socket)
+    match = recv_one_message(client_socket)
+    movieprint = recv_one_message(client_socket)
+    remainingguesses = recv_one_message(client_socket)
 except Exception as e:
     print(e)
     sys.exit(1)
