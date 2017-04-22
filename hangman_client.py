@@ -23,7 +23,7 @@ client_socket.connect((server_name, server_port))
 
 
 #global variables
-#movie = ""
+movie = ""
 #director_name = ""
 #actor_1_name = ""
 #actor_2_name = ""
@@ -161,6 +161,9 @@ def startgame():
 
     #totalguesses = int(client_socket.recv(1024).decode())
     #remainingguesses = int(client_socket.recv(1024).decode())
+    global rowstring
+    row = rowstring.split('-')
+    movie = row[4]
 
     i = 0
     #print(movie)
@@ -294,15 +297,7 @@ def showhangman(gamelabel1, remainingguesses):
 
 
 
-try:
-    rowstring = (client_socket.recv(buffer_size)).decode()
-    totalguesses = (client_socket.recv(buffer_size)).decode()
-    match = (client_socket.recv(buffer_size)).decode()
-    movieprint = (client_socket.recv(buffer_size)).decode()
-    remainingguesses = (client_socket.recv(buffer_size)).decode()
-except Exception as e:
-    print(e)
-    sys.exit(1)
+
 
 
 
@@ -331,3 +326,13 @@ bquit = Button(root, text='Quit', width=10, command=quitnow)
 bquit.pack()
 
 mainloop()
+
+try:
+    rowstring = (client_socket.recv(buffer_size)).decode()
+    totalguesses = (client_socket.recv(buffer_size)).decode()
+    match = (client_socket.recv(buffer_size)).decode()
+    movieprint = (client_socket.recv(buffer_size)).decode()
+    remainingguesses = (client_socket.recv(buffer_size)).decode()
+except Exception as e:
+    print(e)
+    sys.exit(1)
