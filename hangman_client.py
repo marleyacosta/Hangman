@@ -3,6 +3,7 @@ from tkinter import *
 import tkinter.messagebox
 #from tkinter.scrolledText import ScrolledText
 import sqlite3
+import threading
 
 
 
@@ -34,13 +35,36 @@ totalguesses = 0
 remainingguesses = 0
 #movie_metadata_connection =
 
+def UDP_Pinger():
+    while 1:
+
+        ##UDP BEGIN
+        UDPclientSocket = socket(AF_INET, SOCK_DGRAM)
+        UDPclientSocket.settimeout(1)
+        message = "Ping: "
+        addr = ("127.0.0.1", 12000)
+
+        start = time.time()
+        UDPclientSocket.sendto(message.encode(), addr)
+        try:
+            data, server = UDPclientSocket.recvfrom(1024)
+            end = time.time()
+            elapsed = end - start
+            print ('%s %f' % (data, elapsed))
+        except timeout:
+            print ('REQUEST TIMED OUT')
+        ##UDP END
+
+thread_udp = threading.Thread(target=UDP_Pinger, args=())
+thread_udp.start()
+
 def sendletterguess(guessfield):
     guessfield = "l" + guessfield
-    client_socket.send(guessfield.encode())
+    client_socket.sendall(guessfield.encode())
 
 def sendmovieguess(guessfield):
     guessfield = "m" + guessfield
-    client_socket.send(guessfield.encode())
+    client_socket.sendall(guessfield.encode())
 
 ## enter the chatroom ##
 def chatroom():
@@ -182,6 +206,7 @@ def startgame():
     #movieprint = movieprint + '\nIncorrect Guesses Remaining: ' \
     #    + str(remainingguesses) + '\n'
     #hiddenmovie.set(movieprint)
+
     showhangman(gamelabel1, remainingguesses)
 
     movieprint = client_socket.recv(1024).decode()

@@ -3,6 +3,22 @@ import time
 import sqlite3
 import threading
 
+#UDP SERVER
+UDPserverSocket = socket(AF_INET, SOCK_DGRAM)
+UDPserverSocket.bind(('', 12000))
+def udp_ping():
+    ##UDP PING BEGIN
+    while 1:
+        rand = random.randint(0, 10)
+        message, address = UDPserverSocket.recvfrom(1024)
+        message = message.upper()
+        if rand >= 4:
+            UDPserverSocket.sendto(message, address)
+    ##UDP PING END
+
+thread_udp = threading.Thread(target=udp_ping, args=())
+thread_udp.start() 
+
 def guesseslimit(movie):
     num_unique_letters = len(list(set(movie)))
     print("num letters: ", num_unique_letters)
@@ -42,7 +58,7 @@ server_name = 'localhost'
 server_port = 2021
 server_socket = socket(AF_INET,SOCK_STREAM)
 server_socket.bind((server_name,server_port))
-server_socket.listen(1)
+server_socket.listen(5)
 print('The server is ready to receive')
 
 
@@ -57,39 +73,50 @@ def handlethread(conn):
     global totalguesses
 
     while True:
-        guess = (conn.recv(1024)).decode()
-        guesslist = list(guess)
+        try:
+            guess = conn.recv(1024)
+        except socket.error, e:
+            err = e.args[0]
+            if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
+                time.sleep(1)
+                print("No data available")
+                continue
+            else:
+                print(e)
+                sys.exit(1)
+        else:
+            guessdecode = guess.decode()
+            guesslist = list(guessdecode)
 
-        if guesslist[0] == "l":
-            del guesslist[0]
+            if guesslist[0] == "l":
+                del guesslist[0]
 # return the new movielist and guessedletters and remainingguesses
+                letterguess(conn, ''.join(guesslist))
 
-            letterguess(conn, ''.join(guesslist))
-
-        elif guesslist[0] == "m":
-            del guesslist[0]
+            elif guesslist[0] == "m":
+                del guesslist[0]
             # return true or false...
-            result = movieguess(conn, ''.join(guesslist))
+                result = movieguess(conn, ''.join(guesslist))
 
-        for user in connected_users:
-            conn.sendto(str(director_name).encode(), user)
-            time.sleep(0.5)
-            conn.sendto(str(actor_1_name).encode(), user)
-            time.sleep(0.5)
-            conn.sendto(str(actor_2_name).encode(), user)
-            time.sleep(0.5)
-            conn.sendto(str(actor_3_name).encode(), user)
-            time.sleep(0.5)
-            conn.sendto(str(title_year).encode(), user)
-            time.sleep(0.5)
-            conn.sendto(str(movie).encode(), user)
-            time.sleep(0.5)
-# maybe send remainingguesses instead..
-            conn.sendto(str(totalguesses).encode(), user)
-            time.sleep(0.5)
+            for user in connected_users:
+                conn.sendto(str(director_name).encode(), user)
+                time.sleep(0.5)
+                conn.sendto(str(actor_1_name).encode(), user)
+                time.sleep(0.5)
+                conn.sendto(str(actor_2_name).encode(), user)
+                time.sleep(0.5)
+                conn.sendto(str(actor_3_name).encode(), user)
+                time.sleep(0.5)
+                conn.sendto(str(title_year).encode(), user)
+                time.sleep(0.5)
+                conn.sendto(str(movie).encode(), user)
+                time.sleep(0.5)
+    # maybe send remainingguesses instead..
+                conn.sendto(str(totalguesses).encode(), user)
+                time.sleep(0.5)
 
 
-## letter guess section ##
+    ## letter guess section ##
 def letterguess(conn, guessfield, hiddenmovie):
     global correctcounter
     global incorrectcounter
@@ -199,7 +226,7 @@ while True:
     #capitalizedSentence = sentence.upper()
     #connectionSocket.send(capitalizedSentence.encode()) 
     connected_users.append(addr)
-    t = threading.Thread(target=handlethread, args=(conn))
+    t = threading.Thread(target=handlethread, args=(conn,))
     t.start()
 
 
