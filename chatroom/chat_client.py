@@ -32,11 +32,30 @@ def chatroomGUI():
     send_button = Button(master=chatroom_top,text="Send",bg= "#F00",command=quit)
     send_button.pack(side=RIGHT)
 
+    top = Toplevel()
+    top.wm_title("What is your name: ")
+    top.minsize(200,100)
+    top.geometry("300x80")
+
+    label = Label(top)
+    label.pack()
+
+    e = Entry(top, width=30)
+    e.insert(0, "")
+    e.pack()
+
+    benter = Button(top, text="Submit", width=7, command= lambda:chatroom(e, top))
+    benter.pack()
+
+    top.mainloop()
+
     mainloop()
 
-def chatroom():
+def chatroom(e, top):
+    top.destroy()
 
     print("You successfully connected to the server.\n")
+
     message_prefix = ''
 
     socket_list = [sys.stdin, server_connection]
@@ -56,13 +75,17 @@ def chatroom():
                     else:
                         sys.stdout.write(message.decode())
                         if 'What is your name:' in message.decode():
-                            message_prefix = 'name: ' # identifier for name
+                            message_prefix = 'name: ' # identifier for name\
+
+
                         else:
                             message_prefix = ''
+
                         prompt()
 
             else:
                 message = message_prefix + sys.stdin.readline()
+                print(message)
                 server_connection.sendall(message.encode())
 
 
